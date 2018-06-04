@@ -113,7 +113,7 @@ public class AdminServiceImpl implements AdminService {
     public JSONObject login(Admin admin, String ip) {
         Date expire = new DateTime().plusHours(2).toDate();
         String token = Jwts.builder()
-                .setSubject(admin.getName())
+                .setSubject(admin.getAccessKey())
                 .signWith(SignatureAlgorithm.HS512, TOKEN_KEY)
                 .setExpiration(expire)
                 .compact();
