@@ -40,6 +40,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public Admin findByAccessKeyAndToken(String accessKey, String token) {
+        return adminRepository.findByAccessKeyAndToken(accessKey, token);
+    }
+
+    @Override
     public Admin save(Admin admin) {
         return adminRepository.saveAndFlush(admin);
     }
@@ -101,7 +106,7 @@ public class AdminServiceImpl implements AdminService {
         } else {
             name = "%" + name + "%";
         }
-        return adminRepository.findByNameLikeOOrLoginNameLike(name, name, pageRequest);
+        return adminRepository.findByNameLikeOrLoginNameLike(name, name, pageRequest);
     }
 
     @Override
@@ -126,6 +131,12 @@ public class AdminServiceImpl implements AdminService {
         jsonObject.put("name", admin.getName());
         jsonObject.put("avatar", admin.getAvatar());
         return jsonObject;
+    }
+
+    @Override
+    public void logout(Admin admin) {
+        admin.setToken(null);
+        save(admin);
     }
 
     @Override

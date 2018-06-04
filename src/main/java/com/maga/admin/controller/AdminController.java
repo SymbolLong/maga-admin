@@ -34,7 +34,7 @@ public class AdminController {
         admin.setPassword(Md5Util.MD5(jsonObject.getString("password")));
         admin.setAccessKey(accessKey);
         admin.setAvatar(jsonObject.getString("avatar"));
-        if (!StringUtils.isEmpty(jsonObject.getString("roleId"))) {
+        if (jsonObject.containsKey("roleId") && !StringUtils.isEmpty(jsonObject.getString("roleId"))) {
             admin.setRoleId(jsonObject.getLong("roleId"));
         }
         adminService.save(admin);
@@ -60,7 +60,7 @@ public class AdminController {
         }
         admin.setAccessKey(accessKey);
         admin.setAvatar(jsonObject.getString("avatar"));
-        if (!StringUtils.isEmpty(jsonObject.getString("roleId"))) {
+        if (jsonObject.containsKey("roleId") && !StringUtils.isEmpty(jsonObject.getString("roleId"))) {
             admin.setRoleId(jsonObject.getLong("roleId"));
         }
         admin.setUpdateDate(new Date());
@@ -109,7 +109,17 @@ public class AdminController {
         if (!admin.getPassword().equals(Md5Util.MD5(password))) {
             return ApiResultBuilder.failure("密码错误");
         }
-        return ApiResultBuilder.success("查询管理员成功", adminService.login(admin, ip));
+        return ApiResultBuilder.success("管理员登录成功", adminService.login(admin, ip));
+    }
+
+    @GetMapping("/logout")
+    public ApiResult logout(@RequestHeader String token, @RequestParam String accessKey) {
+        Admin admin = adminService.findByAccessKeyAndToken(accessKey, token);
+        if (admin == null) {
+            return ApiResultBuilder.failure("管理员不存在");
+        }
+        adminService.logout(admin);
+        return ApiResultBuilder.success("管理员退出成功");
     }
 
 

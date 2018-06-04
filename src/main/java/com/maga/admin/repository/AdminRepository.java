@@ -9,10 +9,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AdminRepository extends JpaRepository<Admin, Long> {
 
+    Admin findByAccessKeyAndToken(String accessKey, String token);
+
     Admin findByAccessKeyAndLoginName(String accessKey, String loginName);
 
     Page<Admin> findByAccessKey(String accessKey, Pageable pageable);
 
-    Page<Admin> findByNameLikeOOrLoginNameLike(String name, String loginName, Pageable pageable);
-
+    Page<Admin> findByNameLikeOrLoginNameLike(String name, String loginName, Pageable pageable);
 }

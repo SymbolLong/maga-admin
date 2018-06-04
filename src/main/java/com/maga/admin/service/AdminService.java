@@ -9,6 +9,8 @@ public interface AdminService {
 
     Admin findByAccessKeyAndLoginName(String accessKey, String loginName);
 
+    Admin findByAccessKeyAndToken(String accessKey, String token);
+
     Admin save(Admin admin);
 
     JSONObject toJSONObject(Admin admin);
@@ -24,6 +26,8 @@ public interface AdminService {
     Page<Admin> findByName(String name, int page, int size);
 
     JSONObject login(Admin admin, String ip);
+
+    void logout(Admin admin);
 
     Page<LoginRecord> findByAdminId(Long adminId, int page, int size);
 }
