@@ -15,7 +15,7 @@ public abstract class BaseEntity {
     private Long id;
     private Date createDate = new Date();
     private Date updateDate = new Date();
-    private boolean locked;
+
 
     public Long getId() {
         return id;
@@ -41,11 +41,4 @@ public abstract class BaseEntity {
         this.updateDate = updateDate;
     }
 
-    public boolean isLocked() {
-        return locked;
-    }
-
-    public void setLocked(boolean locked) {
-        this.locked = locked;
-    }
 }

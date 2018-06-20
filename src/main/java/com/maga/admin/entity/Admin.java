@@ -6,6 +6,7 @@ import java.io.Serializable;
 @Entity
 public class Admin extends BaseEntity implements Serializable {
 
+    private boolean locked;
     private Long roleId;
     private String name;
     private String loginName;
@@ -77,5 +78,13 @@ public class Admin extends BaseEntity implements Serializable {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
     }
 }
