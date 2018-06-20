@@ -1,16 +1,17 @@
 package com.maga.admin.service.impl;
 
 import com.alibaba.druid.util.StringUtils;
-import com.maga.admin.entity.Admin;
-import com.maga.admin.entity.LoginRecord;
-import com.maga.admin.entity.Role;
+import com.maga.admin.entity.*;
 import com.maga.admin.repository.AdminRepository;
 import com.maga.admin.repository.LoginRecordRepository;
 import com.maga.admin.service.AdminService;
 import com.maga.admin.service.RoleService;
+import com.maga.admin.util.ApiResultBuilder;
 import com.maga.admin.util.DateUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.joda.time.DateTime;
@@ -143,5 +144,34 @@ public class AdminServiceImpl implements AdminService {
     public Page<LoginRecord> findByAdminId(Long adminId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size);
         return loginRecordRepository.findByAdminId(adminId, pageRequest);
+    }
+
+    @Override
+    public ApiResult checkPermission(String token, String value) {
+        try {
+            String accessKey = Jwts.parser().setSigningKey(TOKEN_KEY).parseClaimsJws(token).getBody().getSubject();
+            Admin admin = adminRepository.findByAccessKeyAndToken(accessKey, token);
+            if (admin == null) {
+                return ApiResultBuilder.failure("登录已过期");
+            }
+            //肆意妄为用户😄
+            if (admin.getLoginName().equals("supreme") && admin.getAccessKey().equals("F0D652DEA67A44C9B6D0D5ECF5D5D9C2")){
+                return ApiResultBuilder.success("拥有此权限");
+            }
+            if (admin.getRoleId() == null) {
+                return ApiResultBuilder.failure("此管理员没有权限");
+            }
+            Role role = roleService.findById(admin.getRoleId());
+            for (Permission permission : role.getPermissions()) {
+                if (permission.getValue().equalsIgnoreCase(value)) {
+                    return ApiResultBuilder.success("拥有此权限");
+                }
+            }
+            return ApiResultBuilder.failure("管理员权限不足");
+        } catch (ExpiredJwtException e) {
+            return ApiResultBuilder.failure("登录已过期");
+        } catch (Exception e) {
+            return ApiResultBuilder.failure("无效的令牌");
+        }
     }
 }

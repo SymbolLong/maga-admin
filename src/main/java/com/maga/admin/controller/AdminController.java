@@ -122,5 +122,12 @@ public class AdminController {
         return ApiResultBuilder.success("管理员退出成功");
     }
 
+    @GetMapping("/checkPermission")
+    public ApiResult checkPermission(@RequestHeader String token, @RequestParam String permission){
+        return adminService.checkPermission(token, permission);
+    }
+
+
+
 
 }

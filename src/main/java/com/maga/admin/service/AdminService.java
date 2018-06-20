@@ -1,6 +1,7 @@
 package com.maga.admin.service;
 
 import com.maga.admin.entity.Admin;
+import com.maga.admin.entity.ApiResult;
 import com.maga.admin.entity.LoginRecord;
 import net.sf.json.JSONObject;
 import org.springframework.data.domain.Page;
@@ -30,4 +31,6 @@ public interface AdminService {
     void logout(Admin admin);
 
     Page<LoginRecord> findByAdminId(Long adminId, int page, int size);
+
+    ApiResult checkPermission(String token, String permission);
 }
