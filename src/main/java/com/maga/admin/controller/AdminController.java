@@ -4,6 +4,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.maga.admin.entity.Admin;
 import com.maga.admin.entity.ApiResult;
 import com.maga.admin.service.AdminService;
+import com.maga.admin.service.RoleService;
 import com.maga.admin.util.ApiResultBuilder;
 import com.maga.admin.util.Md5Util;
 import net.sf.json.JSONObject;
@@ -19,6 +20,8 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private RoleService roleService;
 
     @PostMapping
     public ApiResult create(@RequestBody JSONObject jsonObject) {
@@ -28,15 +31,18 @@ public class AdminController {
         if (admin != null) {
             return ApiResultBuilder.failure("管理员已存在");
         }
+        if (jsonObject.containsKey("roleId") && !StringUtils.isEmpty(jsonObject.getString("roleId"))) {
+            if (roleService.findById(jsonObject.getLong("roleId")) == null) {
+                return ApiResultBuilder.failure("角色不存在");
+            }
+        }
         admin = new Admin();
         admin.setName(jsonObject.getString("name"));
         admin.setLoginName(loginName);
         admin.setPassword(Md5Util.MD5(jsonObject.getString("password")));
         admin.setAccessKey(accessKey);
         admin.setAvatar(jsonObject.getString("avatar"));
-        if (jsonObject.containsKey("roleId") && !StringUtils.isEmpty(jsonObject.getString("roleId"))) {
-            admin.setRoleId(jsonObject.getLong("roleId"));
-        }
+        admin.setRoleId(jsonObject.getLong("roleId"));
         adminService.save(admin);
         return ApiResultBuilder.success("创建管理员成功", adminService.toJSONObject(admin));
     }
@@ -46,6 +52,11 @@ public class AdminController {
         Admin admin = adminService.findById(id);
         if (admin == null) {
             return ApiResultBuilder.failure("管理员不存在");
+        }
+        if (jsonObject.containsKey("roleId") && !StringUtils.isEmpty(jsonObject.getString("roleId"))) {
+            if (roleService.findById(jsonObject.getLong("roleId")) == null) {
+                return ApiResultBuilder.failure("角色不存在");
+            }
         }
         String loginName = jsonObject.getString("loginName");
         String accessKey = jsonObject.getString("accessKey");
@@ -60,9 +71,7 @@ public class AdminController {
         }
         admin.setAccessKey(accessKey);
         admin.setAvatar(jsonObject.getString("avatar"));
-        if (jsonObject.containsKey("roleId") && !StringUtils.isEmpty(jsonObject.getString("roleId"))) {
-            admin.setRoleId(jsonObject.getLong("roleId"));
-        }
+        admin.setRoleId(jsonObject.getLong("roleId"));
         admin.setUpdateDate(new Date());
         adminService.save(admin);
         return ApiResultBuilder.success("修改管理员成功", adminService.toJSONObject(admin));
@@ -123,11 +132,9 @@ public class AdminController {
     }
 
     @GetMapping("/checkPermission")
-    public ApiResult checkPermission(@RequestHeader String token, @RequestParam String permission){
+    public ApiResult checkPermission(@RequestHeader String token, @RequestParam String permission) {
         return adminService.checkPermission(token, permission);
     }
-
-
 
 
 }
